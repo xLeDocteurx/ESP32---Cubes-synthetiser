@@ -1,3 +1,8 @@
+// #include <iostream>
+// using namespace std;
+
+using namespace std;
+
 #include "Tone32.h"
 
 namespace Synth {
@@ -18,14 +23,15 @@ namespace Synth {
 
   void changeFormSettings(Waveform wf) {
     form = wf;
+    Serial.println("changed waveform settings : " + wf);
   }
-
   void changePitchEnvSettings(Envelope env) {
-    
+    pitchEnv = env;
+    Serial.println("changed pitch envelope settings : " + env);
   }
-
   void changeAmpEnvSettings(Envelope env) {
-    
+    ampEnv = env;
+    Serial.println("changed amplitude envelope settings : " + env);
   }
 
   inline int processSignal() {
@@ -35,16 +41,11 @@ namespace Synth {
 }
 
 void setup() {
-  // Serial.begin(115200);
-  
-  // ledcSetup(channel, freq, resolution);
-  // ledcAttachPin(pin, channel);
+  Serial.begin(115200);
   
 }
 
 void loop() {
-//  tone(BUZZER_PIN, NOTE_C4, 500, BUZZER_CHANNEL);
-//  noTone(BUZZER_PIN, BUZZER_CHANNEL);
-//  delay(2000);
-  dacWrite(Synth::pin, Synth::value);
+  
+  // dacWrite(Synth::pin, Synth::value);
 }
