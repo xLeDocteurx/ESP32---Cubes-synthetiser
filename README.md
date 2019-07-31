@@ -5,7 +5,7 @@ Arduino project. The goal is to create a small audio workstation for initiation 
 
 ![cubes view](https://github.com/xLeDocteurx/ESP32---Cubes-synthetiser/blob/master/git/Screenshot%20from%202019-07-31%2021-26-38.png)
 
-MVP :
+Minimum viable product :
 - xxx
 
 Stretched goals :
