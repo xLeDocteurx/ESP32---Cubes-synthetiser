@@ -40,7 +40,7 @@ namespace Synth {
     float conversionFactor=(2*PI)/(32 * resolution);
     float radAngle;
 
-    for(int myAngle=0;myAngle<256;myAngle++) {
+    for(int myAngle=0;myAngle<32 * resolution;myAngle++) {
       radAngle=myAngle*conversionFactor;
       sineValues[myAngle]=(sin(radAngle)*127)+128;
     }
@@ -82,7 +82,11 @@ void setup() {
   Serial.println("Device starting");
 
   Synth::initiateWaveforms();
-
+  
+  // for(int i = 0; i < sizeof(Synth::sineValues) / sizeof(Synth::sineValues[0]); i++) {
+  //     Serial.println(Synth::sineValues[i]);
+  // }
+  
   Serial.println("Device started properly");
 }
 
