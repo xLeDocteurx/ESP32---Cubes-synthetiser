@@ -39,13 +39,15 @@ namespace Synth {
     // for sineValues
     float conversionFactor=(2*PI)/(32 * resolution);
     float radAngle;
-
     for(int myAngle=0;myAngle<32 * resolution;myAngle++) {
-      radAngle=myAngle*conversionFactor;
-      sineValues[myAngle]=(sin(radAngle)*127)+128;
+      radAngle = myAngle*conversionFactor;
+      sineValues[myAngle] = (sin(radAngle)*127)+128;
     }
     // for tringleValues
     // for squareValues
+    for(int myAngle=0;myAngle<32 * resolution;myAngle++){
+      squareValues[myAngle] = myAngle < 128 ? 0 : 255;
+    }
     // for sawValues
     // for sawTouth
     // for whiteNoiseValues
@@ -83,9 +85,9 @@ void setup() {
 
   Synth::initiateWaveforms();
   
-  // for(int i = 0; i < sizeof(Synth::sineValues) / sizeof(Synth::sineValues[0]); i++) {
-  //     Serial.println(Synth::sineValues[i]);
-  // }
+   for(int i = 0; i < sizeof(Synth::squareValues) / sizeof(Synth::squareValues[0]); i++) {
+       Serial.println(Synth::squareValues[i]);
+   }
   
   Serial.println("Device started properly");
 }
