@@ -1,4 +1,4 @@
-#include "Tone32.h"
+#include "pitches.h"
 
 namespace Synth {
 
