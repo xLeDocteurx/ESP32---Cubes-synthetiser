@@ -11,7 +11,7 @@ using namespace std;
 namespace Synth {
 
   const int resolution = 8;
-  const int pin = 5;
+  const int pin = 25;
   const int channel = 0;
 
   enum Waveform {sine, triangle, square, saw, sawTouth, whiteNoise};
@@ -87,6 +87,9 @@ void setup() {
    // }
   
   Serial.println("Device started properly");
+  if(Synth::form == Synth::Waveform::square) {
+    Serial.println("Device started properly");
+  }
 }
 
 int waveIndex = 0;
@@ -106,5 +109,13 @@ void loop() {
   }
 
   waveIndex = waveIndex >= 255 ? 0 : waveIndex + 1;
+  
+  if (ledcRead(Synth::pin)) {
+      log_e("Output is in use");
+      int sensorVal = analogRead(Synth::pin);
+      Serial.println("Analog Read) : ");
+      // Serial.println(sensorVal);
+      Serial.println(Synth::squareValues[waveIndex]);
+  }
   
 }
