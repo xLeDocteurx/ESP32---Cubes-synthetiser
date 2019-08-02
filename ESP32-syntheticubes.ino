@@ -1,11 +1,3 @@
-#include <XT_DAC_Audio.h>
-#include <MusicDefinitions.h>
-
-// #include <iostream>
-// using namespace std;
-
-using namespace std;
-
 #include "Tone32.h"
 
 namespace Synth {
