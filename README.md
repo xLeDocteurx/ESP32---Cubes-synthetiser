@@ -10,4 +10,5 @@ Minimum viable product :
 
 Stretched goals :
 - Jack 6.35mm input to control the synth frequency with an high impedance instrument. (Guitar, bass, condenser mic)
+- Midi input ( don't know yet if it will be by standard midi input or CV )
 - A filter section with envelope control.
