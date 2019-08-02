@@ -87,14 +87,13 @@ void setup() {
    // }
   
   Serial.println("Device started properly");
-  if(Synth::form == Synth::Waveform::square) {
-    Serial.println("Device started properly");
-  }
 }
 
 int waveIndex = 0;
 
 void loop() {
+
+  serialListen();
   
   if(Synth::form == Synth::Waveform::sine) {
     dacWrite(Synth::pin, Synth::sineValues[waveIndex]);
@@ -110,12 +109,48 @@ void loop() {
 
   waveIndex = waveIndex >= 255 ? 0 : waveIndex + 1;
   
-  if (ledcRead(Synth::pin)) {
-      log_e("Output is in use");
-      int sensorVal = analogRead(Synth::pin);
-      Serial.println("Analog Read) : ");
-      // Serial.println(sensorVal);
-      Serial.println(Synth::squareValues[waveIndex]);
+//  if (analogRead(Synth::pin)) {
+//      Serial.println("Output is in use");
+//      int sensorVal = analogRead(Synth::pin);
+//      Serial.println(sensorVal);
+//  }
+//  Serial.println("Analog Read : ");
+//  Serial.println(Synth::squareValues[waveIndex]);
+  
+}
+
+String inputString = "";
+bool stringComplete = false;
+
+void serialEvent() {
+  while (Serial.available()) {
+    char inChar = (char)Serial.read();
+    inputString += inChar;
+    if (inChar == '\n') {
+      stringComplete = true;
+    }
+  }
+}
+
+void serialListen() {
+  
+  if (stringComplete) {
+    Serial.println(inputString);
+
+    if(inputString == "cwf:sine") {
+      Synth::changeFormSettings(Synth::Waveform::sine);
+    } else if(inputString == "cwf:triangle") {
+      Synth::changeFormSettings(Synth::Waveform::triangle);
+    } else if(inputString == "cwf:square") {
+      Synth::changeFormSettings(Synth::Waveform::square);
+    } else if(inputString == "cwf:saw") {
+      Synth::changeFormSettings(Synth::Waveform::saw);
+    } else if(inputString == "cwf:whiteNoise") {
+      Synth::changeFormSettings(Synth::Waveform::whiteNoise);
+    }
+
+    inputString = "";
+    stringComplete = false;
   }
   
 }
