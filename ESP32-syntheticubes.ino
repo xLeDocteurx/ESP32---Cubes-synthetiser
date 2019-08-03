@@ -41,10 +41,6 @@ namespace Synth {
     // for sawTouth
     // for whiteNoiseValues
   }
-  void changeFormSettings(Waveform wf) {
-    form = wf;
-    Serial.println("Changed waveform settings : " + wf);
-  }
 
   void initiateEnvelopes(){
     // for shortPeakValues
@@ -53,10 +49,17 @@ namespace Synth {
     // for longPeakWithSustainValues
     // for sustainValues
   }
+  
+  void changeFormSettings(Waveform wf) {
+    form = wf;
+    Serial.println("Changed waveform settings : " + wf);
+  }
+  
   void changePitchEnvSettings(Envelope env) {
     pitchEnv = env;
     Serial.println("Changed pitch envelope settings : " + env);
   }
+  
   void changeAmpEnvSettings(Envelope env) {
     ampEnv = env;
     Serial.println("Changed amplitude envelope settings : " + env);
@@ -111,24 +114,25 @@ void loop() {
   
 }
 
-String inputString = "";
-bool stringComplete = false;
+//String inputString = "";
+//bool stringComplete = false;
 
-void serialEvent() {
-  while (Serial.available()) {
-    char inChar = (char)Serial.read();
-    inputString += inChar;
-    if (inChar == '\n') {
-      stringComplete = true;
-    }
-  }
-}
+//void serialEvent() {
+//  while (Serial.available()) {
+//    char inChar = (char)Serial.read();
+//    inputString += inChar;
+//    if (inChar == '\n') {
+//      stringComplete = true;
+//    }
+//  }
+//}
 
 void serialListen() {
   
-  if (stringComplete) {
-    Serial.println(inputString);
-
+  if (Serial.available()) {
+    String inputString = Serial.readString();
+    inputString.trim();
+    
     if(inputString == "cwf:sine") {
       Synth::changeFormSettings(Synth::Waveform::sine);
     } else if(inputString == "cwf:triangle") {
@@ -139,10 +143,11 @@ void serialListen() {
       Synth::changeFormSettings(Synth::Waveform::saw);
     } else if(inputString == "cwf:whiteNoise") {
       Synth::changeFormSettings(Synth::Waveform::whiteNoise);
+    } else {
+      Serial.println("ELSE :");
+      Serial.println(inputString);
     }
 
-    inputString = "";
-    stringComplete = false;
   }
   
 }
