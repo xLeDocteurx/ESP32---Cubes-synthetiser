@@ -14,8 +14,8 @@ Arduino project. The goal is to create a small audio workstation for initiation 
 - A filter section with envelope control.
 
 ## Serial protocol :
-- cwf:sine
-- cwf:triangle
-- cwf:square
-- cwf:saw
-- cwf:whiteNoise
+- "cwf:sine"
+- "cwf:triangle"
+- "cwf:square"
+- "cwf:saw"
+- "cwf:whiteNoise"
