@@ -6,10 +6,13 @@ namespace Synth {
   const int pin = 25;
   const int channel = 0;
 
+  int waveIndex = 0;
+
   enum Waveform {sine, triangle, square, saw, sawTouth, whiteNoise};
   enum Envelope {shortPeak, shortPeakWithSustain, longPeak, longPeakWithSustain, sustain};
 
-  Waveform form = Waveform::square;
+  // Waveform form = Waveform::square;
+  Waveform form;
   int sineValues[32 * resolution];
   int triangleValues[32 * resolution];
   int squareValues[32 * resolution];
@@ -65,7 +68,23 @@ namespace Synth {
     Serial.println("Changed amplitude envelope settings : " + env);
   }
 
-  inline int processSignal() {
+  inline int processSignalAndWriteToPin() {
+    
+    if(form == Waveform::sine) {
+      dacWrite(pin, sineValues[waveIndex]);
+    } else if(form == Waveform::triangle) {
+      dacWrite(pin, triangleValues[waveIndex]);
+    } else if(form == Waveform::square) {
+      dacWrite(pin, squareValues[waveIndex]);
+    } else if(form == Waveform::saw) {
+      dacWrite(pin, sawValues[waveIndex]);
+    } else if(form == Waveform::whiteNoise) {
+      dacWrite(pin, whiteNoiseValues[waveIndex]);
+    } else {
+      // Serial.println("No waveform selected");
+    }
+  
+    waveIndex = waveIndex >= 255 ? 0 : waveIndex + 1;
     
   }
   
@@ -77,40 +96,14 @@ void setup() {
 
   Synth::initiateWaveforms();
   
-   // for(int i = 0; i < sizeof(Synth::squareValues) / sizeof(Synth::squareValues[0]); i++) {
-   //   Serial.println(Synth::squareValues[i]);
-   // }
-  
   Serial.println("Device started properly");
 }
-
-int waveIndex = 0;
 
 void loop() {
 
   serialListen();
-  
-  if(Synth::form == Synth::Waveform::sine) {
-    dacWrite(Synth::pin, Synth::sineValues[waveIndex]);
-  } else if(Synth::form == Synth::Waveform::triangle) {
-    dacWrite(Synth::pin, Synth::triangleValues[waveIndex]);
-  } else if(Synth::form == Synth::Waveform::square) {
-    dacWrite(Synth::pin, Synth::squareValues[waveIndex]);
-  } else if(Synth::form == Synth::Waveform::saw) {
-    dacWrite(Synth::pin, Synth::sawValues[waveIndex]);
-  } else if(Synth::form == Synth::Waveform::whiteNoise) {
-    dacWrite(Synth::pin, Synth::whiteNoiseValues[waveIndex]);
-  }
 
-  waveIndex = waveIndex >= 255 ? 0 : waveIndex + 1;
-  
-//  if (analogRead(Synth::pin)) {
-//      Serial.println("Output is in use");
-//      int sensorVal = analogRead(Synth::pin);
-//      Serial.println(sensorVal);
-//  }
-//  Serial.println("Analog Read : ");
-//  Serial.println(Synth::squareValues[waveIndex]);
+  Synth::processSignalAndWriteToPin();
   
 }
 
