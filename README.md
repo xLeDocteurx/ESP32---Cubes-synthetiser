@@ -21,6 +21,20 @@ Arduino project. The goal is to create a small audio workstation for initiation 
 - "cwf:saw"
 - "cwf:whiteNoise"
 
+- "cpe:shortPeak"
+- "cpe:shortPeakWithSustain"
+- "cpe:longPeak"
+- "cpe:longPeakWithSustain"
+- "cpe:sustain"
+
+- "cae:shortPeak"
+- "cae:shortPeakWithSustain"
+- "cae:longPeak"
+- "cae:longPeakWithSustain"
+- "cae:sustain"
+
+
+
 ## key electronical components :
 - TL082CN chip as input amplifier and signal offset. (high impedance instruments are delivering a really low voltage AC signal, ADC also needs DC)
 - PAM8403 chip as output amplifier and signal offset.
