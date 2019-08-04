@@ -65,6 +65,9 @@ namespace Synth {
       sawTouthValues[myAngle] = myAngle - (32 * resolution);
     }
     // for whiteNoiseValues
+    for(int myAngle=0;myAngle<32 * resolution * 2;myAngle++) {
+      whiteNoiseValues[myAngle] = random(0, 32 * resolution);
+    }
   }
 
   void initiateEnvelopes(){
@@ -107,7 +110,7 @@ namespace Synth {
     } else if(form == Waveform::whiteNoise) {
       dacWrite(pin, whiteNoiseValues[waveIndex]);
     } else {
-      // Serial.println("No waveform selected");
+      Serial.println("No waveform selected");
     }
   
     waveIndex = waveIndex >= (32 * resolution * 2) - 1 ? 0 : waveIndex + 1;
