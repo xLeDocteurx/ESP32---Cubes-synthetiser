@@ -48,6 +48,15 @@ namespace Synth {
       squareValues[myAngle] = myAngle < 32 * resolution ? 0 : 32 * resolution - 1;
     }
     // for sawValues
+    int index = 0;
+    for(int myAngle=(32 * resolution) - 1;myAngle>=0;myAngle--){
+      sawValues[index] = myAngle;
+      index += 1;
+    }
+    for(int myAngle=(32 * resolution) - 1;myAngle>=0;myAngle--){
+      sawValues[index] = myAngle;
+      index += 1;
+    }
     // for sawTouth
     for(int myAngle=0;myAngle<32 * resolution;myAngle++){
       sawTouthValues[myAngle] = myAngle;
@@ -93,6 +102,8 @@ namespace Synth {
       dacWrite(pin, squareValues[waveIndex]);
     } else if(form == Waveform::saw) {
       dacWrite(pin, sawValues[waveIndex]);
+    } else if(form == Waveform::sawTouth) {
+      dacWrite(pin, sawTouthValues[waveIndex]);
     } else if(form == Waveform::whiteNoise) {
       dacWrite(pin, whiteNoiseValues[waveIndex]);
     } else {
@@ -149,6 +160,8 @@ void serialListen() {
       Synth::changeFormSettings(Synth::Waveform::square);
     } else if(inputString == "cwf:saw") {
       Synth::changeFormSettings(Synth::Waveform::saw);
+    } else if(inputString == "cwf:sawTouth") {
+      Synth::changeFormSettings(Synth::Waveform::sawTouth);
     } else if(inputString == "cwf:whiteNoise") {
       Synth::changeFormSettings(Synth::Waveform::whiteNoise);
       //
