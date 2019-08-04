@@ -19,3 +19,9 @@ Arduino project. The goal is to create a small audio workstation for initiation 
 - "cwf:square"
 - "cwf:saw"
 - "cwf:whiteNoise"
+
+## key electronical components :
+- TL082CN chip as input amplifier and signal offset. (high impedance instruments are delivering a really low voltage AC signal, ADC also needs DC)
+- PAM8403 chip as output amplifier and signal offset.
+
+- Maybe a MCP4725 to upgrade the DAC output from 8 to 12 bits.
