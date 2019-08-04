@@ -13,35 +13,48 @@ namespace Synth {
 
   // Waveform form = Waveform::square;
   Waveform form;
-  int sineValues[32 * resolution];
-  int triangleValues[32 * resolution];
-  int squareValues[32 * resolution];
-  int sawValues[32 * resolution];
-  int whiteNoiseValues[32 * resolution];
+  int sineValues[32 * resolution * 2];
+  int triangleValues[32 * resolution * 2];
+  int squareValues[32 * resolution * 2];
+  int sawValues[32 * resolution * 2];
+  int sawTouthValues[32 * resolution * 2];
+  int whiteNoiseValues[32 * resolution * 2];
   
   Envelope pitchEnv;
   Envelope ampEnv;
-  int shortPeakValues[32 * resolution];
-  int shortPeakWithSustainValues[32 * resolution];
-  int longPeakValues[32 * resolution];
-  int longPeakWithSustainValues[32 * resolution];
-  int sustainValues[32 * resolution];
+  int shortPeakValues[32 * resolution * 2];
+  int shortPeakWithSustainValues[32 * resolution * 2];
+  int longPeakValues[32 * resolution * 2];
+  int longPeakWithSustainValues[32 * resolution * 2];
+  int sustainValues[32 * resolution * 2];
   
   void initiateWaveforms() {
     // for sineValues
-    float conversionFactor=(2*PI)/(32 * resolution);
+    float conversionFactor=(2*PI)/(32 * resolution * 2);
     float radAngle;
-    for(int myAngle=0;myAngle<32 * resolution;myAngle++) {
+    for(int myAngle=0;myAngle<32 * resolution * 2;myAngle++) {
       radAngle = myAngle*conversionFactor;
-      sineValues[myAngle] = (sin(radAngle)*127)+128;
+      sineValues[myAngle] = (sin(radAngle)*((32 * resolution / 2) - 1))+(32 * resolution / 2);
     }
-    // for tringleValues
-    // for squareValues
+    // for triangleValues
     for(int myAngle=0;myAngle<32 * resolution;myAngle++){
-      squareValues[myAngle] = myAngle < 128 ? 0 : 255;
+      triangleValues[myAngle] = myAngle;
+    }
+    for(int myAngle=32 * resolution;myAngle<32 * resolution * 2;myAngle++){
+      triangleValues[myAngle] = (32 * resolution * 2) - myAngle;
+    }
+    // for squareValues
+    for(int myAngle=0;myAngle<32 * resolution * 2;myAngle++){
+      squareValues[myAngle] = myAngle < 32 * resolution ? 0 : 32 * resolution - 1;
     }
     // for sawValues
     // for sawTouth
+    for(int myAngle=0;myAngle<32 * resolution;myAngle++){
+      sawTouthValues[myAngle] = myAngle;
+    }
+    for(int myAngle=32 * resolution;myAngle<32 * resolution * 2;myAngle++){
+      sawTouthValues[myAngle] = myAngle - (32 * resolution);
+    }
     // for whiteNoiseValues
   }
 
@@ -71,10 +84,12 @@ namespace Synth {
   inline int processSignalAndWriteToPin() {
     
     if(form == Waveform::sine) {
+      
       dacWrite(pin, sineValues[waveIndex]);
     } else if(form == Waveform::triangle) {
       dacWrite(pin, triangleValues[waveIndex]);
     } else if(form == Waveform::square) {
+      
       dacWrite(pin, squareValues[waveIndex]);
     } else if(form == Waveform::saw) {
       dacWrite(pin, sawValues[waveIndex]);
@@ -84,7 +99,7 @@ namespace Synth {
       // Serial.println("No waveform selected");
     }
   
-    waveIndex = waveIndex >= 255 ? 0 : waveIndex + 1;
+    waveIndex = waveIndex >= (32 * resolution * 2) - 1 ? 0 : waveIndex + 1;
     
   }
   
@@ -136,6 +151,29 @@ void serialListen() {
       Synth::changeFormSettings(Synth::Waveform::saw);
     } else if(inputString == "cwf:whiteNoise") {
       Synth::changeFormSettings(Synth::Waveform::whiteNoise);
+      //
+    } else if(inputString == "cpe:shortPeak") {
+      Synth::changePitchEnvSettings(Synth::Envelope::shortPeak);
+    } else if(inputString == "cpe:shortPeakWithSustain") {
+      Synth::changePitchEnvSettings(Synth::Envelope::shortPeakWithSustain);
+    } else if(inputString == "cpe:longPeak") {
+      Synth::changePitchEnvSettings(Synth::Envelope::longPeak);
+    } else if(inputString == "cpe:longPeakWithSustain") {
+      Synth::changePitchEnvSettings(Synth::Envelope::longPeakWithSustain);
+    } else if(inputString == "cpe:sustain") {
+      Synth::changePitchEnvSettings(Synth::Envelope::sustain);
+      //
+    } else if(inputString == "cae:shortPeak") {
+      Synth::changeAmpEnvSettings(Synth::Envelope::shortPeak);
+    } else if(inputString == "cae:shortPeakWithSustain") {
+      Synth::changeAmpEnvSettings(Synth::Envelope::shortPeakWithSustain);
+    } else if(inputString == "cae:longPeak") {
+      Synth::changeAmpEnvSettings(Synth::Envelope::longPeak);
+    } else if(inputString == "cae:longPeakWithSustain") {
+      Synth::changeAmpEnvSettings(Synth::Envelope::longPeakWithSustain);
+    } else if(inputString == "cae:sustain") {
+      Synth::changeAmpEnvSettings(Synth::Envelope::sustain);
+      //
     } else {
       Serial.println("ELSE :");
       Serial.println(inputString);
