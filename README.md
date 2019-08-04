@@ -12,6 +12,7 @@ Arduino project. The goal is to create a small audio workstation for initiation 
 - Jack 6.35mm input to control the synth frequency with an high impedance instrument. (Guitar, bass, condenser mic)
 - Midi input ( don't know yet if it will be by standard midi input or CV )
 - A filter section with envelope control.
+- 12 bits output resolution.
 
 ## Serial protocol :
 - "cwf:sine"
