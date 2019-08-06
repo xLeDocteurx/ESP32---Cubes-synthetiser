@@ -6,10 +6,10 @@ Arduino project. The goal is to create a small audio workstation for initiation 
 ![cubes view](https://github.com/xLeDocteurx/ESP32---Cubes-synthetiser/blob/master/git/Screenshot%20from%202019-07-31%2021-26-38.png)
 
 ## Minimum viable product :
-- programing the synthetiser is achieved only via cubes !
-- controlling the synthetiseur via a 12key (1octave) integrated keyboard.
+- Programing the synthetiser is achieved only via cubes !
+- Controlling the synthetiseur via a 12key (1octave) integrated keyboard.
   + Changing the keyboard octave via two buttons
-- volume control on a 3.3mm mono output
+- Volume control on a 3.3mm mono output
 
 ## Stretched goals :
 - Jack 6.35mm input to control the synth frequency with an high impedance instrument. (Guitar, bass, condenser mic)
