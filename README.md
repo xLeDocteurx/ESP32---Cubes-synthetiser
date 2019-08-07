@@ -18,7 +18,7 @@ Arduino project. The goal is to create a small audio workstation for initiation 
 
 ## Stretched goals :
 - Jack 6.35mm input to control the synth frequency with an high impedance instrument. (Guitar, bass, condenser mic)
-  ( Got the idea from this article wich covers frequency detection and links midi ressources https://www.instructables.com/id/Arduino-Frequency-Detection/ )
+    ( Got the idea from this article wich covers frequency detection and links midi ressources https://www.instructables.com/id/Arduino-Frequency-Detection/ )
 - Midi input ( don't know yet if it will be by standard midi input or CV )
 - A filter section with envelope control.
 - 12 bits output resolution.
