@@ -5,6 +5,8 @@ Arduino project. The goal is to create a small audio workstation for initiation 
 
 ![cubes view](https://github.com/xLeDocteurx/ESP32---Cubes-synthetiser/blob/master/git/Screenshot%20from%202019-07-31%2021-26-38.png)
 
+
+
 ## Minimum viable product :
 - xxx
 
@@ -13,6 +15,11 @@ Arduino project. The goal is to create a small audio workstation for initiation 
 - Midi input ( don't know yet if it will be by standard midi input or CV )
 - A filter section with envelope control.
 - 12 bits output resolution.
+
+## Monophonic Keyboard using one analoginput :
+( Instead of using 12 digital inputs. Since, anyway, the wave algorythm will be very simple and wont permit polyphonic restitution. )
+
+![keyboard schematics](https://github.com/xLeDocteurx/ESP32---Cubes-synthetiser/blob/master/git/analog%20button%20input.png)
 
 ## Serial protocol :
 - "cwf:sine"

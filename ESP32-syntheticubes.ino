@@ -94,14 +94,12 @@ namespace Synth {
   }
 
   inline int processSignalAndWriteToPin() {
-    
+    // f(x) = e^(-x)
     if(form == Waveform::sine) {
-      
       dacWrite(pin, sineValues[waveIndex]);
     } else if(form == Waveform::triangle) {
       dacWrite(pin, triangleValues[waveIndex]);
     } else if(form == Waveform::square) {
-      
       dacWrite(pin, squareValues[waveIndex]);
     } else if(form == Waveform::saw) {
       dacWrite(pin, sawValues[waveIndex]);
