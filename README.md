@@ -25,7 +25,7 @@ Arduino project. The goal is to create a small audio workstation for initiation 
 ## Monophonic Keyboard using one analoginput :
 ( Instead of using 12 digital inputs. Since, anyway, the wave algorythm will be very simple and wont permit polyphonic restitution. )
 
-![keyboard schematics](https://github.com/xLeDocteurx/ESP32---Cubes-synthetiser/blob/master/git/analog%20button%20input.png)
+![keyboard schematics](https://github.com/xLeDocteurx/ESP32---Cubes-synthetiser/blob/master/git/analog_button_input.png)
 
 ## Serial protocol :
 - "cwf:sine"
