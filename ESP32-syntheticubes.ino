@@ -4,12 +4,40 @@
 #include "notes.h"
 
 
+
+// I2S VARIABLES
+#include "driver/i2s.h"
+#include <soc/rtc.h>
+#include "freertos/queue.h"
+
+static const int i2s_num = 0; // i2s port number
+
+//static const i2s_port_t i2s_num = (i2s_port_t)I2S_NUM_0; // i2s port number
+
+// DAC pins setup and config :
+const int dacPin = 25;
+const int channel = 0;
+const int resolution = 8;
+
+// SOFTWARE VARIABLES
+// Generals variables :
+int octave = 4;
+int note = 0;
+double frequency = 220;
+//int waveIndex = 0;
+enum Waveform {sine, triangle, square, saw, sawTouth, whiteNoise};
+enum Envelope {shortPeak, shortPeakWithSustain, longPeak, longPeakWithSustain, sustain};
+Waveform form = Waveform::sine;
+// Waveform form;
+Envelope pitchEnv;
+Envelope ampEnv;
+
+// HARDWARE VARIABLES
 // Keyboard pins setup and config :
 const int keyboardNotesPin = 14;
 int keyboardNotesValue = 0;
 bool keyboardNotesPressed = false;
-int keyboardNotesStartedSince = 0
-
+int keyboardNotesStartedSince = 0;
 
 const int keyboardMinusOctaveButtonPin = 12;
 int keyboardMinusOctaveButton = 0;
@@ -18,23 +46,9 @@ const int keyboardPlusOctaveButtonPin = 13;
 int keyboardPlusOctaveButton = 0;
 bool keyboardPlusOctaveButtonPressed = false;
 
-// DAC pins setup and config :
-const int dacPin = 25;
-const int channel = 0;
-const int resolution = 8;
 
-// Generals variables :
-int octave = 4;
-int note = 0;
-int frequency = 220;
-//int waveIndex = 0;
-enum Waveform {sine, triangle, square, saw, sawTouth, whiteNoise};
-enum Envelope {shortPeak, shortPeakWithSustain, longPeak, longPeakWithSustain, sustain};
-Waveform form = Waveform::sine;
-// Waveform form;
-Envelope pitchEnv;
-Envelope ampEnv;
-  
+
+// CODE
 void changeFormSettings(Waveform wf) {
   form = wf;
   Serial.println("Changed waveform settings : " + wf);
@@ -52,7 +66,6 @@ void changeAmpEnvSettings(Envelope env) {
 
 inline double produceWaveform() {
   // f(x) = e^(-x)
-  double freq = octave * note;
   
   double value = 0;
   if(form == Waveform::sine) {
@@ -123,81 +136,94 @@ void keyboardNotesInputListen() {
   int steps = 256;
   keyboardNotesValue = analogRead(keyboardNotesPin);
 
-  if (buttonValue > 234 && keyboardNotesPressed == false) {
+  if (keyboardNotesValue > 234 && keyboardNotesPressed == false) {
     Serial.println("C");
     note = 1;
+    frequency = notes[octave - 1][note - 1];
     keyboardNotesStartedSince = millis();
     keyboardNotesPressed = true;
   }
-  else if (buttonValue > 214.5 && keyboardNotesPressed == false) {
+  else if (keyboardNotesValue > 214.5 && keyboardNotesPressed == false) {
     Serial.println("C#");
     note = 2;
+    frequency = notes[octave - 1][note - 1];
     keyboardNotesStartedSince = millis();
     keyboardNotesPressed = true;
   }
-  else if (buttonValue > 195 && keyboardNotesPressed == false) {
+  else if (keyboardNotesValue > 195 && keyboardNotesPressed == false) {
     Serial.println("D");
     note = 3;
+    frequency = notes[octave - 1][note - 1];
     keyboardNotesStartedSince = millis();
     keyboardNotesPressed = true;
   }
-  else if (buttonValue > 175.5 && keyboardNotesPressed == false) {
+  else if (keyboardNotesValue > 175.5 && keyboardNotesPressed == false) {
     Serial.println("D#");
     note = 4;
+    frequency = notes[octave - 1][note - 1];
     keyboardNotesStartedSince = millis();
     keyboardNotesPressed = true;
   }
-  else if (buttonValue > 156 && keyboardNotesPressed == false) {
+  else if (keyboardNotesValue > 156 && keyboardNotesPressed == false) {
     Serial.println("E");
     note = 5;
+    frequency = notes[octave - 1][note - 1];
     keyboardNotesStartedSince = millis();
     keyboardNotesPressed = true;
   }
-  else if (buttonValue > 136.5 && keyboardNotesPressed == false) {
+  else if (keyboardNotesValue > 136.5 && keyboardNotesPressed == false) {
     Serial.println("F");
     note = 6;
+    frequency = notes[octave - 1][note - 1];
     keyboardNotesStartedSince = millis();
     keyboardNotesPressed = true;
   }
-  else if (buttonValue > 117 && keyboardNotesPressed == false) {
+  else if (keyboardNotesValue > 117 && keyboardNotesPressed == false) {
     Serial.println("F#");
     note = 7;
+    frequency = notes[octave - 1][note - 1];
     keyboardNotesStartedSince = millis();
     keyboardNotesPressed = true;
   }
-  else if (buttonValue > 97.5 && keyboardNotesPressed == false) {
+  else if (keyboardNotesValue > 97.5 && keyboardNotesPressed == false) {
     Serial.println("G");
     note = 8;
+    frequency = notes[octave - 1][note - 1];
     keyboardNotesStartedSince = millis();
     keyboardNotesPressed = true;
   }
-  else if (buttonValue > 78 && keyboardNotesPressed == false) {
+  else if (keyboardNotesValue > 78 && keyboardNotesPressed == false) {
     Serial.println("G#");
     note = 9;
+    frequency = notes[octave - 1][note - 1];
     keyboardNotesStartedSince = millis();
     keyboardNotesPressed = true;
   }
-  else if (buttonValue > 58.5 && keyboardNotesPressed == false) {
+  else if (keyboardNotesValue > 58.5 && keyboardNotesPressed == false) {
     Serial.println("A");
     note = 10;
+    frequency = notes[octave - 1][note - 1];
     keyboardNotesStartedSince = millis();
     keyboardNotesPressed = true;
   }
-  else if (buttonValue > 39 && keyboardNotesPressed == false) {
+  else if (keyboardNotesValue > 39 && keyboardNotesPressed == false) {
     Serial.println("A#");
     note = 11;
+    frequency = notes[octave - 1][note - 1];
     keyboardNotesStartedSince = millis();
     keyboardNotesPressed = true;
   }
-  else if (buttonValue > 19.5 && keyboardNotesPressed == false) {
+  else if (keyboardNotesValue > 19.5 && keyboardNotesPressed == false) {
     Serial.println("B");
     note = 12;
+    frequency = notes[octave - 1][note - 1];
     keyboardNotesStartedSince = millis();
     keyboardNotesPressed = true;
   }
-  else if (buttonValue < 19.5 && keyboardNotesPressed == true) {
+  else if (keyboardNotesValue < 19.5 && keyboardNotesPressed == true) {
     Serial.println("Release");
     note = 0;
+    frequency = 0;
     keyboardNotesStartedSince = 0;
     keyboardNotesPressed = false;
   }
