@@ -1,3 +1,5 @@
+#include <soc/rtc.h>
+
 #include <driver/dac.h>
 //#include <iostream>
 //#include "pitches.h"
@@ -6,13 +8,46 @@
 
 
 // I2S VARIABLES
-#include "driver/i2s.h"
-#include <soc/rtc.h>
-#include "freertos/queue.h"
+//#include "driver/i2s.h"
+//#include "esp_system.h"
+#include <driver/i2s.h>
+//#include "freertos/queue.h"
 
-static const int i2s_num = 0; // i2s port number
-
+//static const int i2s_num = 0; // i2s port number
+static const i2s_port_t i2s_num = I2S_NUM_0; // i2s port number
 //static const i2s_port_t i2s_num = (i2s_port_t)I2S_NUM_0; // i2s port number
+
+static const i2s_config_t i2s_config = {
+     .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_TX),
+     .sample_rate = 44100,
+     .bits_per_sample = (i2s_bits_per_sample_t)I2S_BITS_PER_SAMPLE_16BIT,
+     .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
+     .communication_format = I2S_COMM_FORMAT_I2S_MSB,
+     .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1, // default interrupt priority
+     .dma_buf_count = 8,
+     .dma_buf_len = 64,
+     .use_apll = false
+//     ,
+//     .tx_desc_auto_clear = false,
+//     .fixed_mclk = 0
+};
+//static const i2s_config_t i2s_config = {
+//     .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_TX | I2S_MODE_DAC_BUILT_IN),
+//     .sample_rate = 1000000,  //not really used
+//     .bits_per_sample = (i2s_bits_per_sample_t)I2S_BITS_PER_SAMPLE_16BIT, 
+//     .channel_format = I2S_CHANNEL_FMT_ONLY_RIGHT,
+//     .communication_format = I2S_COMM_FORMAT_I2S_MSB,
+//     .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1,
+//     .dma_buf_count = 2,
+//     .dma_buf_len = 1024  //big buffers to avoid noises
+//};
+
+//static const i2s_pin_config_t pin_config = {
+//    .bck_io_num = 26,
+//    .ws_io_num = 25,
+//    .data_out_num = 22,
+//    .data_in_num = I2S_PIN_NO_CHANGE
+//};
 
 // DAC pins setup and config :
 const int dacPin = 25;
@@ -95,6 +130,26 @@ inline double produceWaveform() {
 void setup() {
   Serial.begin(115200);
   Serial.println("Device starting");
+
+  rtc_clk_cpu_freq_set(RTC_CPU_FREQ_240M);              //highest cpu frequency
+
+  i2s_driver_install(i2s_num, &i2s_config, 0, NULL);   //install and start i2s driver
+//  i2s_set_pin(i2s_num, &pin_config);
+  i2s_set_pin(i2s_num, NULL);                           //use internal DAC
+  i2s_set_sample_rates(i2s_num, 22050); //set sample rates
+//  i2s_driver_uninstall(i2s_num); //stop & destroy i2s driver
+
+//  i2s_driver_install(i2s_num, &i2s_config, 0, NULL);    //start i2s driver
+//  i2s_set_pin(i2s_num, NULL);                           //use internal DAC
+//  i2s_set_sample_rates(i2s_num, 1000000);               //dummy sample rate, since the function fails at high values
+//
+////this is the hack that enables the highest sampling rate possible ~13MHz, have fun
+//SET_PERI_REG_BITS(I2S_CLKM_CONF_REG(0), I2S_CLKM_DIV_A_V, 1, I2S_CLKM_DIV_A_S);
+//SET_PERI_REG_BITS(I2S_CLKM_CONF_REG(0), I2S_CLKM_DIV_B_V, 1, I2S_CLKM_DIV_B_S);
+//SET_PERI_REG_BITS(I2S_CLKM_CONF_REG(0), I2S_CLKM_DIV_NUM_V, 2, I2S_CLKM_DIV_NUM_S); 
+//SET_PERI_REG_BITS(I2S_SAMPLE_RATE_CONF_REG(0), I2S_TX_BCK_DIV_NUM_V, 2, I2S_TX_BCK_DIV_NUM_S); 
+
+  
   
 //  dac_output_enable(DAC_CHANNEL_1);
 
