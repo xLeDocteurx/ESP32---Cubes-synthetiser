@@ -16,19 +16,19 @@ static const i2s_port_t i2s_num = I2S_NUM_0; // i2s port number
 //static const i2s_port_t i2s_num = (i2s_port_t)I2S_NUM_0; // i2s port number
 
 static const i2s_config_t i2s_config = {
-     .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_TX),
-//     .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_TX | I2S_MODE_DAC_BUILT_IN),
-     .sample_rate = 44100,
-//     .sample_rate = 1000000,  //not really used
+//     .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_TX),
+     .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_TX | I2S_MODE_DAC_BUILT_IN),
+//     .sample_rate = 44100,
+     .sample_rate = 1000000,  //not really used
      .bits_per_sample = (i2s_bits_per_sample_t)I2S_BITS_PER_SAMPLE_16BIT,
 //     .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
      .channel_format = I2S_CHANNEL_FMT_ONLY_RIGHT,
      .communication_format = I2S_COMM_FORMAT_I2S_MSB,
      .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1, // default interrupt priority
-     .dma_buf_count = 8,
-//     .dma_buf_count = 2,
-     .dma_buf_len = 64,
-//     .dma_buf_len = 1024  //big buffers to avoid noises
+//     .dma_buf_count = 8,
+     .dma_buf_count = 2,
+//     .dma_buf_len = 64,
+     .dma_buf_len = 1024,  //big buffers to avoid noises
      .use_apll = false
 //     ,
 //     .tx_desc_auto_clear = false,
@@ -100,7 +100,6 @@ void changeAmpEnvSettings(Envelope env) {
 }
 
 void initiateWaveforms() {
-
   // for sineValues
   float conversionFactor=(2*PI)/bufferSize;
   for(int myAngle=0;myAngle < bufferSize;myAngle++) {
@@ -169,16 +168,16 @@ void setup() {
   i2s_driver_install(i2s_num, &i2s_config, 0, NULL);   //install and start i2s driver
 //  i2s_set_pin(i2s_num, &pin_config);
   i2s_set_pin(i2s_num, NULL);                           //use internal DAC
-  i2s_set_sample_rates(i2s_num, 22050); //set sample rates
-//  i2s_set_sample_rates(i2s_num, 1000000);               //dummy sample rate, since the function fails at high values
+//  i2s_set_sample_rates(i2s_num, 22050); //set sample rates
+  i2s_set_sample_rates(i2s_num, 1000000);               //dummy sample rate, since the function fails at high values
 
 //  i2s_driver_uninstall(i2s_num); //stop & destroy i2s driver
 
-////this is the hack that enables the highest sampling rate possible ~13MHz, have fun
-//SET_PERI_REG_BITS(I2S_CLKM_CONF_REG(0), I2S_CLKM_DIV_A_V, 1, I2S_CLKM_DIV_A_S);
-//SET_PERI_REG_BITS(I2S_CLKM_CONF_REG(0), I2S_CLKM_DIV_B_V, 1, I2S_CLKM_DIV_B_S);
-//SET_PERI_REG_BITS(I2S_CLKM_CONF_REG(0), I2S_CLKM_DIV_NUM_V, 2, I2S_CLKM_DIV_NUM_S); 
-//SET_PERI_REG_BITS(I2S_SAMPLE_RATE_CONF_REG(0), I2S_TX_BCK_DIV_NUM_V, 2, I2S_TX_BCK_DIV_NUM_S); 
+//this is the hack that enables the highest sampling rate possible ~13MHz, have fun
+SET_PERI_REG_BITS(I2S_CLKM_CONF_REG(0), I2S_CLKM_DIV_A_V, 1, I2S_CLKM_DIV_A_S);
+SET_PERI_REG_BITS(I2S_CLKM_CONF_REG(0), I2S_CLKM_DIV_B_V, 1, I2S_CLKM_DIV_B_S);
+SET_PERI_REG_BITS(I2S_CLKM_CONF_REG(0), I2S_CLKM_DIV_NUM_V, 2, I2S_CLKM_DIV_NUM_S); 
+SET_PERI_REG_BITS(I2S_SAMPLE_RATE_CONF_REG(0), I2S_TX_BCK_DIV_NUM_V, 2, I2S_TX_BCK_DIV_NUM_S); 
 
   
   
@@ -192,15 +191,41 @@ void setup() {
   Serial.println("Device started properly");
 }
 
+
+//buffer to store modulated samples, I2S samples of the esp32 are always 16Bit
+short buff[1024];
+//sine represented in 16 values. at 13MHz sampling rate the resulting carrier is at around 835KHz
+int sintab[] = {0, 48, 90, 117, 127, 117, 90, 48, 0, -48, -90, -117, -127, -117, -90, -48};
+
+
 void loop() {
 
-  serialListen();
+//  serialListen();
 
 //  keyboardOctaveInputListen();
 //  keyboardNotesInputListen();
   
 //  dacWrite(dacPin, produceWaveform());
 //    dac_output_voltage(DAC_CHANNEL_1, produceWaveform());
+
+
+
+  
+  //fill the sound buffer
+  for(int i = 0; i < 1024; i+=16){
+    
+    //modulating that sample on the 16 values of the carrier wave (respect to I2S byte order, 16Bit/Sample)
+    for(int j = 0; j < 16; j += 4)
+    {          
+      buff[i + j + 1] = (sintab[j + 0] + 0x8000);
+      buff[i + j + 0] = (sintab[j + 1] + 0x8000);
+      buff[i + j + 3] = (sintab[j + 2] + 0x8000);
+      buff[i + j + 2] = (sintab[j + 3] + 0x8000);
+    }
+  }
+  
+  //write the buffer (waits until a buffer is ready to be filled, that's timing for free)
+  i2s_write_bytes(i2s_num, (char*)buff, sizeof(buff), portMAX_DELAY);
   
 }
 
