@@ -1,6 +1,5 @@
 #include <soc/rtc.h>
-
-#include <driver/dac.h>
+//#include <driver/dac.h>
 //#include <iostream>
 //#include "pitches.h"
 #include "notes.h"
@@ -13,34 +12,28 @@
 #include <driver/i2s.h>
 //#include "freertos/queue.h"
 
-//static const int i2s_num = 0; // i2s port number
 static const i2s_port_t i2s_num = I2S_NUM_0; // i2s port number
 //static const i2s_port_t i2s_num = (i2s_port_t)I2S_NUM_0; // i2s port number
 
 static const i2s_config_t i2s_config = {
      .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_TX),
+//     .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_TX | I2S_MODE_DAC_BUILT_IN),
      .sample_rate = 44100,
+//     .sample_rate = 1000000,  //not really used
      .bits_per_sample = (i2s_bits_per_sample_t)I2S_BITS_PER_SAMPLE_16BIT,
-     .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
+//     .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
+     .channel_format = I2S_CHANNEL_FMT_ONLY_RIGHT,
      .communication_format = I2S_COMM_FORMAT_I2S_MSB,
      .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1, // default interrupt priority
      .dma_buf_count = 8,
+//     .dma_buf_count = 2,
      .dma_buf_len = 64,
+//     .dma_buf_len = 1024  //big buffers to avoid noises
      .use_apll = false
 //     ,
 //     .tx_desc_auto_clear = false,
 //     .fixed_mclk = 0
 };
-//static const i2s_config_t i2s_config = {
-//     .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_TX | I2S_MODE_DAC_BUILT_IN),
-//     .sample_rate = 1000000,  //not really used
-//     .bits_per_sample = (i2s_bits_per_sample_t)I2S_BITS_PER_SAMPLE_16BIT, 
-//     .channel_format = I2S_CHANNEL_FMT_ONLY_RIGHT,
-//     .communication_format = I2S_COMM_FORMAT_I2S_MSB,
-//     .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1,
-//     .dma_buf_count = 2,
-//     .dma_buf_len = 1024  //big buffers to avoid noises
-//};
 
 //static const i2s_pin_config_t pin_config = {
 //    .bck_io_num = 26,
@@ -59,8 +52,15 @@ const int resolution = 8;
 int octave = 4;
 int note = 0;
 double frequency = 220;
+const int bufferSize = 512;
 //int waveIndex = 0;
 enum Waveform {sine, triangle, square, saw, sawTouth, whiteNoise};
+int sineValues[bufferSize];
+int triangleValues[bufferSize];
+int squareValues[bufferSize];
+int sawValues[bufferSize];
+int sawTouthValues[bufferSize];
+int whiteNoiseValues[bufferSize];
 enum Envelope {shortPeak, shortPeakWithSustain, longPeak, longPeakWithSustain, sustain};
 Waveform form = Waveform::sine;
 // Waveform form;
@@ -99,37 +99,70 @@ void changeAmpEnvSettings(Envelope env) {
   Serial.println("Changed amplitude envelope settings : " + env);
 }
 
-inline double produceWaveform() {
-  // f(x) = e^(-x)
-  
-  double value = 0;
-  if(form == Waveform::sine) {
-//    double time = millis() / 1000.0;
-//    return sin(time * (2.0 * PI) * frequency) * 127.5 + 127.5;
-    return sin((millis() / 1000.0) * (2.0 * PI) * frequency) * 127.5 + 127.5;
-        
-  } else if(form == Waveform::triangle) {
-    //dacWrite(dacPin, triangleValues[waveIndex]);
-  } else if(form == Waveform::square) {
-    ////dacWrite(dacPin, squareValues[waveIndex]);
-    return sin((millis() / 1000.0) * (2.0 * PI) * frequency) > 0 ? 255 : 0;
-  } else if(form == Waveform::saw) {
-    //dacWrite(dacPin, sawValues[waveIndex]);
-  } else if(form == Waveform::sawTouth) {
-    //dacWrite(dacPin, sawTouthValues[waveIndex]);
-  } else if(form == Waveform::whiteNoise) {
-    //dacWrite(dacPin, whiteNoiseValues[waveIndex]);
-  } else {
-    Serial.println("No waveform selected");
+void initiateWaveforms() {
+
+  // for sineValues
+  float conversionFactor=(2*PI)/bufferSize;
+  for(int myAngle=0;myAngle < bufferSize;myAngle++) {
+    sineValues[myAngle] = sin(myAngle*conversionFactor) * 127.5 + 127.5;
   }
-  return value;
-  
+  // for triangleValues
+  for(int myAngle=0;myAngle <  bufferSize / 2;myAngle++){
+    triangleValues[myAngle] = myAngle * 255 / (bufferSize / 2);
+  }
+  for(int myAngle=bufferSize / 2;myAngle > 0;myAngle--){
+    triangleValues[myAngle] = myAngle * 255 / (bufferSize / 2);
+  }
+  // for squareValues
+  for(int myAngle=0;myAngle < bufferSize;myAngle++){
+    squareValues[myAngle] = myAngle < bufferSize / 2 ? 0 : 255;
+  }
+  // for sawValues
+  for(int myAngle=bufferSize - 1;myAngle >= 0;myAngle--){
+    sawValues[myAngle] = myAngle * 255 / bufferSize;
+  }
+  // for sawTouth
+  for(int myAngle=bufferSize;myAngle < bufferSize;myAngle++){
+    sawTouthValues[myAngle] = myAngle * 255 / bufferSize;
+  }
+  // for whiteNoiseValues
+  for(int myAngle=0;myAngle < bufferSize;myAngle++) {
+    whiteNoiseValues[myAngle] = random(0, 255);
+  }
 }
+
+//inline double produceWaveform() {
+//  // f(x) = e^(-x)
+//  
+//  double value = 0;
+//  if(form == Waveform::sine) {
+////    double time = millis() / 1000.0;
+////    return sin(time * (2.0 * PI) * frequency) * 127.5 + 127.5;
+//    return sin((millis() / 1000.0) * (2.0 * PI) * frequency) * 127.5 + 127.5;
+//  } else if(form == Waveform::triangle) {
+//    //dacWrite(dacPin, triangleValues[waveIndex]);
+//  } else if(form == Waveform::square) {
+//    ////dacWrite(dacPin, squareValues[waveIndex]);
+//    return sin((millis() / 1000.0) * (2.0 * PI) * frequency) > 0 ? 255 : 0;
+//  } else if(form == Waveform::saw) {
+//    //dacWrite(dacPin, sawValues[waveIndex]);
+//  } else if(form == Waveform::sawTouth) {
+//    //dacWrite(dacPin, sawTouthValues[waveIndex]);
+//  } else if(form == Waveform::whiteNoise) {
+//    //dacWrite(dacPin, whiteNoiseValues[waveIndex]);
+//  } else {
+//    Serial.println("No waveform selected");
+//  }
+//  return value;
+//  
+//}
 
 
 void setup() {
   Serial.begin(115200);
   Serial.println("Device starting");
+
+  initiateWaveforms();
 
   rtc_clk_cpu_freq_set(RTC_CPU_FREQ_240M);              //highest cpu frequency
 
@@ -137,12 +170,10 @@ void setup() {
 //  i2s_set_pin(i2s_num, &pin_config);
   i2s_set_pin(i2s_num, NULL);                           //use internal DAC
   i2s_set_sample_rates(i2s_num, 22050); //set sample rates
+//  i2s_set_sample_rates(i2s_num, 1000000);               //dummy sample rate, since the function fails at high values
+
 //  i2s_driver_uninstall(i2s_num); //stop & destroy i2s driver
 
-//  i2s_driver_install(i2s_num, &i2s_config, 0, NULL);    //start i2s driver
-//  i2s_set_pin(i2s_num, NULL);                           //use internal DAC
-//  i2s_set_sample_rates(i2s_num, 1000000);               //dummy sample rate, since the function fails at high values
-//
 ////this is the hack that enables the highest sampling rate possible ~13MHz, have fun
 //SET_PERI_REG_BITS(I2S_CLKM_CONF_REG(0), I2S_CLKM_DIV_A_V, 1, I2S_CLKM_DIV_A_S);
 //SET_PERI_REG_BITS(I2S_CLKM_CONF_REG(0), I2S_CLKM_DIV_B_V, 1, I2S_CLKM_DIV_B_S);
@@ -165,25 +196,11 @@ void loop() {
 
   serialListen();
 
-  keyboardOctaveInputListen();
-  keyboardNotesInputListen();
-
-//  int waveformValue = produceWaveform();
-//  dacWrite(dacPin, waveformValue);
+//  keyboardOctaveInputListen();
+//  keyboardNotesInputListen();
   
-  dacWrite(dacPin, produceWaveform());
-//    dac_output_voltage(DAC_CHANNEL_1, waveformValue);
-
-
-//  Serial.println("------------------------");
-//  Serial.println(millis());
-//  double blbl = millis() / 1000.0;
-//  Serial.println(blbl, 3);
-//  Serial.println("------------------------");
-//  Serial.println(waveformValue, 3);
-//  Serial.println(produceWaveform());
-//  Serial.println(produceWaveform(), 3);
-//  Serial.println("------------------------");
+//  dacWrite(dacPin, produceWaveform());
+//    dac_output_voltage(DAC_CHANNEL_1, produceWaveform());
   
 }
 
