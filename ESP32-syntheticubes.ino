@@ -1,49 +1,49 @@
 #include <soc/rtc.h>
-//#include <driver/dac.h>
+#include <driver/dac.h>
 //#include <iostream>
 //#include "pitches.h"
 #include "notes.h"
 
 
 
-// I2S VARIABLES
-//#include "driver/i2s.h"
-//#include "esp_system.h"
-#include <driver/i2s.h>
-//#include "freertos/queue.h"
+//// I2S VARIABLES
+////#include "driver/i2s.h"
+////#include "esp_system.h"
+//#include <driver/i2s.h>
+////#include "freertos/queue.h"
 
 
-//const int dma_buf_len = 16000;
-const int dma_buf_len = 1024;
-//static const i2s_port_t i2s_num = I2S_NUM_0; // i2s port number
-static const i2s_port_t i2s_num = (i2s_port_t)I2S_NUM_0; // i2s port number
-
-static const i2s_config_t i2s_config = {
-//     .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_TX),
-     .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_TX | I2S_MODE_DAC_BUILT_IN),
-//     .sample_rate = 44100,
-     .sample_rate = 1000000,  //not really used
-     .bits_per_sample = (i2s_bits_per_sample_t)I2S_BITS_PER_SAMPLE_16BIT,
-//     .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
-     .channel_format = I2S_CHANNEL_FMT_ONLY_RIGHT,
-     .communication_format = I2S_COMM_FORMAT_I2S_MSB,
-     .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1, // default interrupt priority
-//     .dma_buf_count = 8,
-     .dma_buf_count = 2,
-//     .dma_buf_len = 64,
-     .dma_buf_len = dma_buf_len,  //big buffers to avoid noises
-     .use_apll = false
-//     ,
-//     .tx_desc_auto_clear = false,
-//     .fixed_mclk = 0
-};
-
-//static const i2s_pin_config_t pin_config = {
-//    .bck_io_num = 26,
-//    .ws_io_num = 25,
-//    .data_out_num = 22,
-//    .data_in_num = I2S_PIN_NO_CHANGE
+////const int dma_buf_len = 16000;
+//const int dma_buf_len = 1024;
+////static const i2s_port_t i2s_num = I2S_NUM_0; // i2s port number
+//static const i2s_port_t i2s_num = (i2s_port_t)I2S_NUM_0; // i2s port number
+//
+//static const i2s_config_t i2s_config = {
+////     .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_TX),
+//     .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_TX | I2S_MODE_DAC_BUILT_IN),
+////     .sample_rate = 44100,
+//     .sample_rate = 1000000,  //not really used
+//     .bits_per_sample = (i2s_bits_per_sample_t)I2S_BITS_PER_SAMPLE_16BIT,
+////     .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
+//     .channel_format = I2S_CHANNEL_FMT_ONLY_RIGHT,
+//     .communication_format = I2S_COMM_FORMAT_I2S_MSB,
+//     .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1, // default interrupt priority
+////     .dma_buf_count = 8,
+//     .dma_buf_count = 2,
+////     .dma_buf_len = 64,
+//     .dma_buf_len = dma_buf_len,  //big buffers to avoid noises
+//     .use_apll = false
+////     ,
+////     .tx_desc_auto_clear = false,
+////     .fixed_mclk = 0
 //};
+//
+////static const i2s_pin_config_t pin_config = {
+////    .bck_io_num = 26,
+////    .ws_io_num = 25,
+////    .data_out_num = 22,
+////    .data_in_num = I2S_PIN_NO_CHANGE
+////};
 
 // DAC pins setup and config :
 const int dacPin = 25;
@@ -54,11 +54,14 @@ const int resolution = 8;
 // Generals variables :
 int octave = 4;
 int note = 0;
-double frequency = 220;
-const int bufferSize = 1024;
+double frequency = 440;
+const int bufferSize = 512;
+float eachWaveformValueRepeats = 180736 / bufferSize;
 //const int bufferSize = 512;
 //int waveIndex = 0;
+int blankArray[bufferSize];
 enum Waveform {sine, triangle, square, saw, sawTouth, whiteNoise};
+Waveform form;
 int selectedWaveform[bufferSize];
 int sineValues[bufferSize];
 int triangleValues[bufferSize];
@@ -67,7 +70,6 @@ int sawValues[bufferSize];
 int sawTouthValues[bufferSize];
 int whiteNoiseValues[bufferSize];
 enum Envelope {shortPeak, shortPeakWithSustain, longPeak, longPeakWithSustain, sustain};
-Waveform form = Waveform::sine;
 // Waveform form;
 Envelope pitchEnv;
 Envelope ampEnv;
@@ -91,7 +93,24 @@ bool keyboardPlusOctaveButtonPressed = false;
 // CODE
 void changeFormSettings(Waveform wf) {
   form = wf;
-  updateSelectedWaveform();
+  
+  if(wf == Waveform::sine) {
+    memcpy(selectedWaveform, sineValues, sizeof(selectedWaveform));
+  } else if(wf == Waveform::triangle) {
+    memcpy(selectedWaveform, triangleValues, sizeof(selectedWaveform));
+  } else if(wf == Waveform::square) {
+    memcpy(selectedWaveform, squareValues, sizeof(selectedWaveform));
+  } else if(wf == Waveform::saw) {
+    memcpy(selectedWaveform, sawValues, sizeof(selectedWaveform));
+  } else if(wf == Waveform::sawTouth) {
+    memcpy(selectedWaveform, sawTouthValues, sizeof(selectedWaveform));
+  } else if(wf == Waveform::whiteNoise) {
+    memcpy(selectedWaveform, whiteNoiseValues, sizeof(selectedWaveform));
+  } else {
+    memcpy(selectedWaveform, blankArray, sizeof(selectedWaveform));
+    Serial.println("No waveform selected");
+  }
+  
   Serial.println("Changed waveform settings : " + wf);
 }
 
@@ -137,23 +156,19 @@ void initiateWaveforms() {
   // f(x) = e^(-x)
 }
 
-/*inline*/ void updateSelectedWaveform() {
-  if(form == Waveform::sine) {
-    memcpy(selectedWaveform, sineValues, sizeof(selectedWaveform));
-  } else if(form == Waveform::triangle) {
-    memcpy(selectedWaveform, triangleValues, sizeof(selectedWaveform));
-  } else if(form == Waveform::square) {
-    memcpy(selectedWaveform, squareValues, sizeof(selectedWaveform));
-  } else if(form == Waveform::saw) {
-    memcpy(selectedWaveform, sawValues, sizeof(selectedWaveform));
-  } else if(form == Waveform::sawTouth) {
-    memcpy(selectedWaveform, sawTouthValues, sizeof(selectedWaveform));
-  } else if(form == Waveform::whiteNoise) {
-    memcpy(selectedWaveform, whiteNoiseValues, sizeof(selectedWaveform));
-  } else {
-    Serial.println("No waveform selected");
-  }
+float envelopeValue() {
+  // for shortPeak
+  //  shortPeakValues[];
+  // for shortPeakWithSustain
+  //  shortPeakWithSustainValues[];
+  // for longPeak
+  //  longPeakValues[];
+  // for longPeakWithSustain
+  //  longPeakWithSustainValues[];
+  // for sustain
+  //  sustainValues[];
 }
+
 
 
 void setup() {
@@ -161,23 +176,23 @@ void setup() {
   Serial.println("Device starting");
 
   initiateWaveforms();
-  updateSelectedWaveform();
+  changeFormSettings(Waveform::sine);
 
   rtc_clk_cpu_freq_set(RTC_CPU_FREQ_240M);              //highest cpu frequency
 
-  i2s_driver_install(i2s_num, &i2s_config, 0, NULL);   //install and start i2s driver
-//  i2s_set_pin(i2s_num, &pin_config);
-  i2s_set_pin(i2s_num, NULL);                           //use internal DAC
-//  i2s_set_sample_rates(i2s_num, 22050); //set sample rates
-  i2s_set_sample_rates(i2s_num, 1000000);               //dummy sample rate, since the function fails at high values
-
-//  i2s_driver_uninstall(i2s_num); //stop & destroy i2s driver
-
-  //this is the hack that enables the highest sampling rate possible ~13MHz, have fun
-  SET_PERI_REG_BITS(I2S_CLKM_CONF_REG(0), I2S_CLKM_DIV_A_V, 1, I2S_CLKM_DIV_A_S);
-  SET_PERI_REG_BITS(I2S_CLKM_CONF_REG(0), I2S_CLKM_DIV_B_V, 1, I2S_CLKM_DIV_B_S);
-  SET_PERI_REG_BITS(I2S_CLKM_CONF_REG(0), I2S_CLKM_DIV_NUM_V, 2, I2S_CLKM_DIV_NUM_S); 
-  SET_PERI_REG_BITS(I2S_SAMPLE_RATE_CONF_REG(0), I2S_TX_BCK_DIV_NUM_V, 2, I2S_TX_BCK_DIV_NUM_S); 
+//  i2s_driver_install(i2s_num, &i2s_config, 0, NULL);   //install and start i2s driver
+////  i2s_set_pin(i2s_num, &pin_config);
+//  i2s_set_pin(i2s_num, NULL);                           //use internal DAC
+////  i2s_set_sample_rates(i2s_num, 22050); //set sample rates
+//  i2s_set_sample_rates(i2s_num, 1000000);               //dummy sample rate, since the function fails at high values
+//
+////  i2s_driver_uninstall(i2s_num); //stop & destroy i2s driver
+//
+//  //this is the hack that enables the highest sampling rate possible ~13MHz, have fun
+//  SET_PERI_REG_BITS(I2S_CLKM_CONF_REG(0), I2S_CLKM_DIV_A_V, 1, I2S_CLKM_DIV_A_S);
+//  SET_PERI_REG_BITS(I2S_CLKM_CONF_REG(0), I2S_CLKM_DIV_B_V, 1, I2S_CLKM_DIV_B_S);
+//  SET_PERI_REG_BITS(I2S_CLKM_CONF_REG(0), I2S_CLKM_DIV_NUM_V, 2, I2S_CLKM_DIV_NUM_S); 
+//  SET_PERI_REG_BITS(I2S_SAMPLE_RATE_CONF_REG(0), I2S_TX_BCK_DIV_NUM_V, 2, I2S_TX_BCK_DIV_NUM_S); 
 
   
   
@@ -192,47 +207,32 @@ void setup() {
 }
 
 
-//buffer to store modulated samples, I2S samples of the esp32 are always 16Bit
-short buff[dma_buf_len];
-long int bufferSamplesPerCycle = 13328000;
-int eachWaveValueRepeats;
-int bufferPartsCounter = 0;
-int waveIndexCounter = 0;
-//sine represented in 16 values. at 13MHz sampling rate the resulting carrier is at around 835KHz
-int sintab[] = {0, 48, 90, 117, 127, 117, 90, 48, 0, -48, -90, -117, -127, -117, -90, -48};
+////buffer to store modulated samples, I2S samples of the esp32 are always 16Bit
+//short buff[dma_buf_len];
+//long int bufferSamplesPerCycle = 13328000;
+//int eachWaveValueRepeats;
+//int bufferPartsCounter = 0;
+//int waveIndexCounter = 0;
+////sine represented in 16 values. at 13MHz sampling rate the resulting carrier is at around 835KHz
+//int sintab[] = {0, 48, 90, 117, 127, 117, 90, 48, 0, -48, -90, -117, -127, -117, -90, -48};
 
 
 
 void loop() {
 
-//  serialListen();
+  serialListen();
 
 //  keyboardOctaveInputListen();
 //  keyboardNotesInputListen();
+//  int h = 0;
+//  while(keyboardNotesPressed == true && ){
+
+//float eachWaveformValueRepeats = 180736 / bufferSize;
+  for(float i = 0; i < bufferSize; i += 1 / (eachWaveformValueRepeats / frequency)){
+    dacWrite(dacPin, selectedWaveform[static_cast<int>(i+0.5f)]);
+//    dac_output_voltage(DAC_CHANNEL_1, selectedWaveform[static_cast<int>(i+0.5f)]);
+  }
   
-//  dacWrite(dacPin, produceWaveform());
-//    dac_output_voltage(DAC_CHANNEL_1, produceWaveform());
-
-
-//  //fill the sound buffer
-//  for(int i=0; i < bufferSize; i++){
-//    
-//    //modulating that sample on the 16 values of the carrier wave (respect to I2S byte order, 16Bit/Sample)
-//    for(int j=0; j < dma_buf_len / bufferSize; j++){
-//      buff[(i * (dma_buf_len / bufferSize)) + j] = (selectedWaveform[i] + 0x8000);
-//    }
-//  } 
-
-
-  
-//  //fill the sound buffer
-//  for(int i=0; i < dma_buf_len; i += bufferSize){
-//    
-//    //modulating that sample on the 16 values of the carrier wave (respect to I2S byte order, 16Bit/Sample)
-//    for(int j=0; j < bufferSize; j++){
-//      buff[i + j] = (selectedWaveform[j] + 0x8000);
-//    }
-//  }
 
 
 
@@ -251,34 +251,33 @@ void loop() {
 
 
 
-  //dma_buf_len
-  //bufferSize
-  //eachWaveValueRepeats
-  //bufferPartsCounter
-  //waveIndexCounter
-  eachWaveValueRepeats = (13328000 / frequency) / bufferSize;
-  //fill the sound buffer
-  for(int i = 0; i < dma_buf_len; i += 4) {
-           
-    buff[i + 1] = (selectedWaveform[waveIndexCounter + 0] + 0x8000);
-    buff[i + 0] = (selectedWaveform[waveIndexCounter + 1] + 0x8000);
-    buff[i + 3] = (selectedWaveform[waveIndexCounter + 2] + 0x8000);
-    buff[i + 2] = (selectedWaveform[waveIndexCounter + 3] + 0x8000);
-  
-  }
+
+//  eachWaveValueRepeats = (13328000 / frequency) / bufferSize;
+//  //fill the sound buffer
+////  for(int i = 0; i < dma_buf_len; i += 4) {
+//  for(int i = 0; i < dma_buf_len; i++) {
+//    
+//    buff[i] = (sineValues[waveIndexCounter] + 0x8000);
+//           
+////    buff[i + 1] = (selectedWaveform[waveIndexCounter + 0] + 0x8000);
+////    buff[i + 0] = (selectedWaveform[waveIndexCounter + 1] + 0x8000);
+////    buff[i + 3] = (selectedWaveform[waveIndexCounter + 2] + 0x8000);
+////    buff[i + 2] = (selectedWaveform[waveIndexCounter + 3] + 0x8000);
+//  
+//  }
 
   
   
-  //write the buffer (waits until a buffer is ready to be filled, that's timing for free)
-  i2s_write_bytes(i2s_num, (char*)buff, sizeof(buff), portMAX_DELAY);
-  
-  if(bufferPartsCounter < eachWaveValueRepeats) {
-    bufferPartsCounter += 1;
-//  } else if(bufferPartsCounter >= eachWaveValueRepeats) {
-  } else {
-    bufferPartsCounter = 0;
-    waveIndexCounter = waveIndexCounter < bufferSize ? waveIndexCounter + 1 : 0;
-  }
+//  //write the buffer (waits until a buffer is ready to be filled, that's timing for free)
+//  i2s_write_bytes(i2s_num, (char*)buff, sizeof(buff), portMAX_DELAY);
+//  
+//  if(bufferPartsCounter < eachWaveValueRepeats) {
+//    bufferPartsCounter += 1;
+////  } else if(bufferPartsCounter >= eachWaveValueRepeats) {
+//  } else {
+//    bufferPartsCounter = 0;
+//    waveIndexCounter = waveIndexCounter < bufferSize ? waveIndexCounter + 1 : 0;
+//  }
   
 }
 
@@ -287,73 +286,73 @@ void keyboardNotesInputListen() {
   keyboardNotesValue = analogRead(keyboardNotesPin);
 
   if(keyboardNotesValue > 234 && keyboardNotesPressed == false) {
-    Serial.println("C");
+    Serial.println("C" + octave);
     note = 1;
     frequency = notes[octave - 1][note - 1];
     keyboardNotesStartedSince = millis();
     keyboardNotesPressed = true;
   } else if (keyboardNotesValue > 214.5 && keyboardNotesPressed == false) {
-    Serial.println("C#");
+    Serial.println("C#" + octave);
     note = 2;
     frequency = notes[octave - 1][note - 1];
     keyboardNotesStartedSince = millis();
     keyboardNotesPressed = true;
   } else if (keyboardNotesValue > 195 && keyboardNotesPressed == false) {
-    Serial.println("D");
+    Serial.println("D" + octave);
     note = 3;
     frequency = notes[octave - 1][note - 1];
     keyboardNotesStartedSince = millis();
     keyboardNotesPressed = true;
   } else if (keyboardNotesValue > 175.5 && keyboardNotesPressed == false) {
-    Serial.println("D#");
+    Serial.println("D#" + octave);
     note = 4;
     frequency = notes[octave - 1][note - 1];
     keyboardNotesStartedSince = millis();
     keyboardNotesPressed = true;
   } else if (keyboardNotesValue > 156 && keyboardNotesPressed == false) {
-    Serial.println("E");
+    Serial.println("E" + octave);
     note = 5;
     frequency = notes[octave - 1][note - 1];
     keyboardNotesStartedSince = millis();
     keyboardNotesPressed = true;
   } else if (keyboardNotesValue > 136.5 && keyboardNotesPressed == false) {
-    Serial.println("F");
+    Serial.println("F" + octave);
     note = 6;
     frequency = notes[octave - 1][note - 1];
     keyboardNotesStartedSince = millis();
     keyboardNotesPressed = true;
   } else if (keyboardNotesValue > 117 && keyboardNotesPressed == false) {
-    Serial.println("F#");
+    Serial.println("F#" + octave);
     note = 7;
     frequency = notes[octave - 1][note - 1];
     keyboardNotesStartedSince = millis();
     keyboardNotesPressed = true;
   } else if (keyboardNotesValue > 97.5 && keyboardNotesPressed == false) {
-    Serial.println("G");
+    Serial.println("G" + octave);
     note = 8;
     frequency = notes[octave - 1][note - 1];
     keyboardNotesStartedSince = millis();
     keyboardNotesPressed = true;
   } else if (keyboardNotesValue > 78 && keyboardNotesPressed == false) {
-    Serial.println("G#");
+    Serial.println("G#" + octave);
     note = 9;
     frequency = notes[octave - 1][note - 1];
     keyboardNotesStartedSince = millis();
     keyboardNotesPressed = true;
   } else if (keyboardNotesValue > 58.5 && keyboardNotesPressed == false) {
-    Serial.println("A");
+    Serial.println("A" + octave);
     note = 10;
     frequency = notes[octave - 1][note - 1];
     keyboardNotesStartedSince = millis();
     keyboardNotesPressed = true;
   } else if (keyboardNotesValue > 39 && keyboardNotesPressed == false) {
-    Serial.println("A#");
+    Serial.println("A#" + octave);
     note = 11;
     frequency = notes[octave - 1][note - 1];
     keyboardNotesStartedSince = millis();
     keyboardNotesPressed = true;
   } else if (keyboardNotesValue > 19.5 && keyboardNotesPressed == false) {
-    Serial.println("B");
+    Serial.println("B" + octave);
     note = 12;
     frequency = notes[octave - 1][note - 1];
     keyboardNotesStartedSince = millis();
