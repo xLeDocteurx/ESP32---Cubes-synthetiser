@@ -27,7 +27,6 @@ Arduino project. The goal is to create a small audio workstation for initiation 
 ( Instead of using 12 digital inputs. Since, anyway, the wave algorythm will be very simple and wont permit polyphonic restitution. )
 
 ![keyboard schematics](https://github.com/xLeDocteurx/ESP32---Cubes-synthetiser/blob/master/git/analog_button_input.png)
-![cubes view](https://github.com/xLeDocteurx/ESP32---Cubes-synthetiser/blob/master/git/IMG_20190901_184709.jpg)
 
 ## Serial protocol :
 - "cwf:sine"
