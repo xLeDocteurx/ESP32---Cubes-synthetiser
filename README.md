@@ -14,7 +14,7 @@ Arduino project. The goal is to create a small audio workstation for initiation 
 - Controlling the synthetiseur via a 12key (1octave) integrated keyboard.
   + Changing the keyboard octave via two buttons
 - Volume control on a 3.3mm mono output
-- Simple access to hardware oriented variables for open purposes ( To easily change sample rate resolution based on hardware, for exemple )
+- Serial MIDI connection
 
 ## Stretched goals :
 - Jack 6.35mm input to control the synth frequency with an high impedance instrument. (Guitar, bass, condenser mic)
