@@ -51,7 +51,7 @@ Arduino project. The goal is to create a small audio workstation for initiation 
 
 ## key electronical components :
 - Weemos lolin32. ( any 32bit microcontroler with at least one DAC will do the job )
-- TL082CN chip as input amplifier and signal offset. (high impedance instruments are delivering a really low voltage AC signal, ADC also needs DC)
+- TL082CN chip as input amplifier and signal offset via voltage divider. (high impedance instruments are delivering a really low voltage AC signal, ADC also needs DC)
 - PAM8403 chip as output amplifier and signal offset.
 
 - Maybe a MCP4725 to upgrade the DAC output from 8 to 12 bits.
