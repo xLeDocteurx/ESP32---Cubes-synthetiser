@@ -14,12 +14,11 @@ Arduino project. The goal is to create a small audio workstation for initiation 
 - Controlling the synthetiseur via a 12key (1octave) integrated keyboard.
   + Changing the keyboard octave via two buttons
 - Volume control on a 3.3mm mono output
-- Simple access to hardware oriented variables for open purposes ( To easily change sample rate resolution based on hardware, for exemple )
+- Serial MIDI USB connection ( Plug the thing via usb to a computer and sends notes using your favorite DAW software like Ableton Live, Reason, Grageband, etc.. )
 
 ## Stretched goals :
 - Jack 6.35mm input to control the synth frequency with an high impedance instrument. (Guitar, bass, condenser mic)
     ( Got the idea from this article wich covers frequency detection and links midi ressources https://www.instructables.com/id/Arduino-Frequency-Detection/ )
-- Midi input ( don't know yet if it will be by standard midi input or CV )
 - A filter section with envelope control.
 - 12 bits output resolution.
 
@@ -27,7 +26,6 @@ Arduino project. The goal is to create a small audio workstation for initiation 
 ( Instead of using 12 digital inputs. Since, anyway, the wave algorythm will be very simple and wont permit polyphonic restitution. )
 
 ![keyboard schematics](https://github.com/xLeDocteurx/ESP32---Cubes-synthetiser/blob/master/git/analog_button_input.png)
-![cubes view](https://github.com/xLeDocteurx/ESP32---Cubes-synthetiser/blob/master/git/IMG_20190901_184709.jpg)
 
 ## Serial protocol :
 - "cwf:sine"
@@ -52,7 +50,7 @@ Arduino project. The goal is to create a small audio workstation for initiation 
 
 ## key electronical components :
 - Weemos lolin32. ( any 32bit microcontroler with at least one DAC will do the job )
-- TL082CN chip as input amplifier and signal offset. (high impedance instruments are delivering a really low voltage AC signal, ADC also needs DC)
+- TL082CN chip as input amplifier and signal offset via voltage divider. (high impedance instruments are delivering a really low voltage AC signal, ADC also needs DC)
 - PAM8403 chip as output amplifier and signal offset.
 
 - Maybe a MCP4725 to upgrade the DAC output from 8 to 12 bits.
