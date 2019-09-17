@@ -1,13 +1,18 @@
 # ESP32---Cubes-synthetiser
 Arduino project. The goal is to create a small audio workstation for initiation to audio synthésis where you program the synthetiser by placing cubes on a board. Powered by Weemos Lolin32.
 
+
+Prototype status at last commit date :
+Serial USB MIDI protocol is working !
 ![prototype view](https://github.com/xLeDocteurx/ESP32---Cubes-synthetiser/blob/master/git/IMG_20190910_125214.jpg)
 
+What I have in mind :
 ![board view](https://github.com/xLeDocteurx/ESP32---Cubes-synthetiser/blob/master/git/Screenshot%20from%202019-07-28%2020-21-12.png)
-
 ![cubes view](https://github.com/xLeDocteurx/ESP32---Cubes-synthetiser/blob/master/git/Screenshot%20from%202019-07-31%2021-26-38.png)
 
+All I need to build now are the cubes. ( The logic as well as the code are in place )
 
+NB : The commented code is ment to replace the actual way to generate waveforms by bypassing the board API using the I2S. ( To get better performance. API limits the frequency rate to 8Mhz while I2S should be 400/500Mhz, for a decent 8bits resolution signal )
 
 ## Minimum viable product :
 - Programing the synthetiser is achieved only via cubes !
