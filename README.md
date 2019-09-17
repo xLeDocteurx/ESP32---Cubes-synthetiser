@@ -1,7 +1,7 @@
 # ESP32---Cubes-synthetiser
 Arduino project. The goal is to create a small audio workstation for initiation to audio synthésis where you program the synthetiser by placing cubes on a board. Powered by Weemos Lolin32.
 
-( having not recieved part of my electronics parts, synth programming function are developped to be used via serial monitor. Cube identification and behavior will come last. )
+![prototype view](https://github.com/xLeDocteurx/ESP32---Cubes-synthetiser/blob/master/git/IMG_20190910_125214.jpg)
 
 ![board view](https://github.com/xLeDocteurx/ESP32---Cubes-synthetiser/blob/master/git/Screenshot%20from%202019-07-28%2020-21-12.png)
 

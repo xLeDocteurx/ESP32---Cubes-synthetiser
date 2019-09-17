@@ -229,7 +229,7 @@ void setup() {
   MIDI.setHandleNoteOff(handleNoteOff);
   
   Serial.begin(115200);
-//  SerialBT.println("Device starting");
+  SerialBT.println("Device starting");
 
   pinMode(ledPin, OUTPUT);
   digitalWrite(ledPin, HIGH);
@@ -271,7 +271,7 @@ void setup() {
   pinMode(keyboardMinusOctaveButtonPin, INPUT);
   pinMode(keyboardPlusOctaveButtonPin, INPUT);
 
-//  SerialBT.println("Device started properly");
+  SerialBT.println("Device started properly");
 }
 
 
@@ -301,8 +301,7 @@ void loop() {
   
   MIDI.read();
     
-//  keyboardOctaveInputListen();
-//  SerialBT.println(digitalRead(keyboardMinusOctaveButtonPin));
+  keyboardOctaveInputListen();
 //  keyboardNotesInputListen();
 
   if(keyboardNotesPressed == true){
@@ -375,103 +374,103 @@ inline void keyboardNotesInputListen() {
 //  }
   
   if(keyboardNotesValue > 3600 && keyboardNotesPressed == false) {
-    //SerialBT.print("C");
-    //SerialBT.print(octave);
-    //SerialBT.print("\n");
+    SerialBT.print("C");
+    SerialBT.print(octave);
+    SerialBT.print("\n");
     note = 1;
     frequency = notes[(octave - 1 * 12) + note - 1];
     keyboardNotesStartedSince = millis();
     keyboardNotesPressed = true;
   } else if (keyboardNotesValue > 3100 && keyboardNotesPressed == false) {
-    //SerialBT.print("C#");
-    //SerialBT.print(octave);
-    //SerialBT.print("\n");
+    SerialBT.print("C#");
+    SerialBT.print(octave);
+    SerialBT.print("\n");
     note = 2;
     frequency = notes[(octave - 1 * 12) + note - 1];
     keyboardNotesStartedSince = millis();
     keyboardNotesPressed = true;
   } else if (keyboardNotesValue > 2700 && keyboardNotesPressed == false) {
-    //SerialBT.print("D");
-    //SerialBT.print(octave);
-    //SerialBT.print("\n");
+    SerialBT.print("D");
+    SerialBT.print(octave);
+    SerialBT.print("\n");
     note = 3;
     frequency = notes[(octave - 1 * 12) + note - 1];
     keyboardNotesStartedSince = millis();
     keyboardNotesPressed = true;
   } else if (keyboardNotesValue > 2300 && keyboardNotesPressed == false) {
-    //SerialBT.print("D#");
-    //SerialBT.print(octave);
-    //SerialBT.print("\n");
+    SerialBT.print("D#");
+    SerialBT.print(octave);
+    SerialBT.print("\n");
     note = 4;
     frequency = notes[(octave - 1 * 12) + note - 1];
     keyboardNotesStartedSince = millis();
     keyboardNotesPressed = true;
   } else if (keyboardNotesValue > 2000 && keyboardNotesPressed == false) {
-    //SerialBT.print("E");
-    //SerialBT.print(octave);
-    //SerialBT.print("\n");
+    SerialBT.print("E");
+    SerialBT.print(octave);
+    SerialBT.print("\n");
     note = 5;
     frequency = notes[(octave - 1 * 12) + note - 1];
     keyboardNotesStartedSince = millis();
     keyboardNotesPressed = true;
   } else if (keyboardNotesValue > 1700 && keyboardNotesPressed == false) {
-    //SerialBT.print("F");
-    //SerialBT.print(octave);
-    //SerialBT.print("\n");
+    SerialBT.print("F");
+    SerialBT.print(octave);
+    SerialBT.print("\n");
     note = 6;
     frequency = notes[(octave - 1 * 12) + note - 1];
     keyboardNotesStartedSince = millis();
     keyboardNotesPressed = true;
   } else if (keyboardNotesValue > 1400 && keyboardNotesPressed == false) {
-    //SerialBT.print("F#");
-    //SerialBT.print(octave);
-    //SerialBT.print("\n");
+    SerialBT.print("F#");
+    SerialBT.print(octave);
+    SerialBT.print("\n");
     note = 7;
     frequency = notes[(octave - 1 * 12) + note - 1];
     keyboardNotesStartedSince = millis();
     keyboardNotesPressed = true;
   } else if (keyboardNotesValue > 1100 && keyboardNotesPressed == false) {
-    //SerialBT.print("G");
-    //SerialBT.print(octave);
-    //SerialBT.print("\n");
+    SerialBT.print("G");
+    SerialBT.print(octave);
+    SerialBT.print("\n");
     note = 8;
     frequency = notes[(octave - 1 * 12) + note - 1];
     keyboardNotesStartedSince = millis();
     keyboardNotesPressed = true;
   } else if (keyboardNotesValue > 800 && keyboardNotesPressed == false) {
-    //SerialBT.print("G#");
-    //SerialBT.print(octave);
-    //SerialBT.print("\n");
+    SerialBT.print("G#");
+    SerialBT.print(octave);
+    SerialBT.print("\n");
     note = 9;
     frequency = notes[(octave - 1 * 12) + note - 1];
     keyboardNotesStartedSince = millis();
     keyboardNotesPressed = true;
   } else if (keyboardNotesValue > 500 && keyboardNotesPressed == false) {
-    //SerialBT.print("A");
-    //SerialBT.print(octave);
-    //SerialBT.print("\n");
+    SerialBT.print("A");
+    SerialBT.print(octave);
+    SerialBT.print("\n");
     note = 10;
     frequency = notes[(octave - 1 * 12) + note - 1];
     keyboardNotesStartedSince = millis();
     keyboardNotesPressed = true;
   } else if (keyboardNotesValue > 200 && keyboardNotesPressed == false) {
-    //SerialBT.print("A#");
-    //SerialBT.print(octave);
-    //SerialBT.print("\n");
+    SerialBT.print("A#");
+    SerialBT.print(octave);
+    SerialBT.print("\n");
     note = 11;
     frequency = notes[(octave - 1 * 12) + note - 1];
     keyboardNotesStartedSince = millis();
     keyboardNotesPressed = true;
   } else if (keyboardNotesValue > 75 && keyboardNotesPressed == false) {
-    //SerialBT.print("B");
-    //SerialBT.print(octave);
-    //SerialBT.print("\n");
+    SerialBT.print("B");
+    SerialBT.print(octave);
+    SerialBT.print("\n");
     note = 12;
     frequency = notes[(octave - 1 * 12) + note - 1];
     keyboardNotesStartedSince = millis();
     keyboardNotesPressed = true;
   } else if (keyboardNotesValue < 75 && keyboardNotesPressed == true) {
-    //SerialBT.println("Release");
+    SerialBT.println("Release");
     note = 0;
     frequency = 0;
     keyboardNotesStartedSince = 0;
@@ -487,9 +486,8 @@ inline void keyboardOctaveInputListen() {
     // turn LED on:
     keyboardMinusOctaveButtonPressed = true;
     if(octave > 0) octave -= 1;
-    //SerialBT.print("Device octave changed to : ");
-    //SerialBT.print(octave);
-    //SerialBT.print("\n");
+    SerialBT.print("Device octave changed to : ");
+    SerialBT.println(octave);
   } else if(keyboardMinusOctaveButton == LOW && keyboardMinusOctaveButtonPressed == true) {
     // turn LED off:
     keyboardMinusOctaveButtonPressed = false;
@@ -500,9 +498,8 @@ inline void keyboardOctaveInputListen() {
     // turn LED on:
     keyboardPlusOctaveButtonPressed = true;
     if(octave < 7) octave += 1;
-    //SerialBT.print("Device octave changed to : ");
-    //SerialBT.print(octave);
-    //SerialBT.print("\n");
+    SerialBT.print("Device octave changed to : ");
+    SerialBT.println(octave);
   } else if(keyboardPlusOctaveButton == LOW && keyboardPlusOctaveButtonPressed == true) {
     // turn LED off:
     keyboardPlusOctaveButtonPressed = false;
