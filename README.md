@@ -26,6 +26,7 @@ NB : The commented code is ment to replace the actual way to generate waveforms 
     ( Got the idea from this article wich covers frequency detection and links midi ressources https://www.instructables.com/id/Arduino-Frequency-Detection/ )
 - A filter section with envelope control.
 - 12 bits output resolution.
+- Using the second core of the Lolin32 to separate the audio processing from the rest of the calculations
 
 ## Monophonic Keyboard using one analoginput :
 ( Instead of using 12 digital inputs. Since, anyway, the wave algorythm will be very simple and wont permit polyphonic restitution. )
